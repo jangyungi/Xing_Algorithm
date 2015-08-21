@@ -1,0 +1,174 @@
+trcode 목록
+
+--------- XASession 에서 제공하는 API를 대체 할 trcode 목록 ---------
+xing.IsConnected
+설명: 이베스트 서버 접속 상태를 확인 합니다.
+인자: 없음
+반환: 서버연결이되어있을경우에는True, 아닐경우에는False 반환(bool)
+
+xing.GetAccountListCount
+설명: 보유중인 계좌의 개수를 조회 합니다.
+인자: 없음
+반환: 보유중인계좌의개수
+
+xing.GetAccountList
+설명: 전체 보유 계좌 중 n(0부터 시작)번째 계좌의 계좌번호를 조회 합니다.
+인자: 조회 할 계좌 인덱스 번호(int)
+반환: 계좌번호(str)
+
+xing.GetAccountName
+설명: 계좌번호에 해당하는 계좌명을 조회합니다.
+인자: 계좌번호(str)
+반환: 계좌명을취득합니다.(str)
+
+xing.GetAcctDetailName
+설명: 계좌번호에 해당하는 계좌상세명을 조회합니다.
+인자: 계좌번호(str)
+반환: 계좌상세명을취득합니다.(str)
+
+xing.GetAcctNickname
+설명: 계좌번호에 해당하는 계좌 별명을 조회합니다.
+인자: 계좌번호(str)
+반환: 계좌별명(str)
+
+xing.GetServerName
+설명: 접속중인 이베스트 서버이름을 조회합니다.
+인자: 없음
+반환: 접속중인 서버이름(str)
+
+
+--------- 조회TR 및 실시간TR trcode 사용 법 ---------
+1. 조회TR
+ - 사용할 xingAPI의 TR코드 선택(xingAPI에서 제공하는 TR코드의 자세한 사항은 이베스트 홈페이지 또는 xingAPI DevCenter에서 확인하실 수 있습니다.)
+ - xingAPI TR코드의 앞에 "xing."를 붙이면 pystock_xingAPI에서 사용가능한 trcode가 됩니다.
+ - 입력 인자는 함께 동봉된 "inblock_template.py"에서 "inblock_query_TR코드" 형태의 dict를 찾아, 소스상에 붙여 넣고 xingAPI 매뉴얼을 참고하여 dict의 값에 적절한 값을 입력하여 사용합니다.
+ ex) trcode xing.t1452의 경우 거래량 상위종목을 검색하는 조회TR이고 "inblock_template.py"에서 찾은 trcode의 inblock_query dict는 아래와 같습니다.
+    # 거래량상위(t1452)
+    inblock_query_t1452 = {
+        't1452InBlock' : {
+            # 구분
+            'gubun' : None,
+            # 전일구분
+            'jnilgubun' : None,
+            # 시작등락율
+            'sdiff' : None,
+            # 종료등락율
+            'ediff' : None,
+            # 대상제외
+            'jc_num' : None,
+            # 시작가격
+            'sprice' : None,
+            # 종료가격
+            'eprice' : None,
+            # 거래량
+            'volume' : None,
+            # IDX
+            'idx' : None
+        }
+    }
+ - query호출의 반환값은 "outblock_template.py"에 기술 되어 있습니다.
+ ex) "outblock_template.py"에서 찾은 trcode xing.t1452의 반환값은 아래와 같습니다.
+    # 거래량상위(t1452)
+    outblock_query_t1452 = {
+        't1452OutBlock' : {
+            # IDX
+            'idx' : None
+        },
+        't1452OutBlock1' : [
+            {
+                # 종목명
+                'hname' : None,
+                # 현재가
+                'price' : None,
+                # 전일대비구분
+                'sign' : None,
+                # 전일대비
+                'change' : None,
+                # 등락율
+                'diff' : None,
+                # 누적거래량
+                'volume' : None,
+                # 회전율
+                'vol' : None,
+                # 전일거래량
+                'jnilvolume' : None,
+                # 전일비
+                'bef_diff' : None,
+                # 종목코드
+                'shcode' : None
+            }
+        ]
+    }
+    연속조회의 방법은 ex4_volume_data.py 예제 파일을 참고하시기 바랍니다.
+
+2. 실시간TR
+ - 사용할 xingAPI의 TR코드 선택(xingAPI에서 제공하는 TR코드의 자세한 사항은 이베스트 홈페이지 또는 xingAPI DevCenter에서 확인하실 수 있습니다.)
+ - xingAPI TR코드의 앞에 "xing."를 붙이면 pystock_xingAPI에서 사용가능한 trcode가 됩니다.
+ - 입력 인자는 함께 동봉된 "inblock_template.py"에서 "inblock_subscription_TR코드" 형태의 dict를 찾아, 소스상에 붙여 넣고 xingAPI 매뉴얼을 참고하여 dict의 값에 적절한 값을 입력하여 사용합니다.
+ ex) trcode xing.S3_의 경우 KOSPI체결 정보 실시간으로 수신받는 실시간TR이고, "inblock_template.py"에서 찾은 trcode의 inblock_subscription dict는 아래와 같습니다.
+    # KOSPI체결(S3)
+    inblock_subscription_S3_ = {
+        'InBlock' : {
+            # 단축코드
+            'shcode' : None
+        }
+    }
+ - 실시간 데이터 발생 시 마다 subscribe호출시 인자로 입력한 Queue그 데이터가 쌓이게 되는데, 이때 쌓여있는 데이터의 형태는 "outblock_template.py"에 기술 되어 있습니다.
+ ex) "outblock_template.py"에서 찾은 trcode xing.S3_의 반환값은 아래와 같습니다.
+    # KOSPI체결(S3)
+    outblock_subscription_S3_ = {
+        'OutBlock' : {
+            # 체결시간
+            'chetime' : None,
+            # 전일대비구분
+            'sign' : None,
+            # 전일대비
+            'change' : None,
+            # 등락율
+            'drate' : None,
+            # 현재가
+            'price' : None,
+            # 시가시간
+            'opentime' : None,
+            # 시가
+            'open' : None,
+            # 고가시간
+            'hightime' : None,
+            # 고가
+            'high' : None,
+            # 저가시간
+            'lowtime' : None,
+            # 저가
+            'low' : None,
+            # 체결구분
+            'cgubun' : None,
+            # 체결량
+            'cvolume' : None,
+            # 누적거래량
+            'volume' : None,
+            # 누적거래대금
+            'value' : None,
+            # 매도누적체결량
+            'mdvolume' : None,
+            # 매도누적체결건수
+            'mdchecnt' : None,
+            # 매수누적체결량
+            'msvolume' : None,
+            # 매수누적체결건수
+            'mschecnt' : None,
+            # 체결강도
+            'cpower' : None,
+            # 가중평균가
+            'w_avrg' : None,
+            # 매도호가
+            'offerho' : None,
+            # 매수호가
+            'bidho' : None,
+            # 장정보
+            'status' : None,
+            # 전일동시간대거래량
+            'jnilvolume' : None,
+            # 단축코드
+            'shcode' : None
+        }
+    }
